@@ -1,0 +1,832 @@
+{
+	"info": {
+		"_postman_id": "9f726b5c-d682-4e35-a949-b6b7661178f1",
+		"name": "FixTrace - Smart Lab Maintenance & Repair Tracker API",
+		"description": "Comprehensive Postman test collection for the FixTrace backend REST API suite.\nIncludes Authentication, User Management, Lab Facilities, Equipment Asset Tracking, Issue Reporting & State Machine Lifecycle, Technical Repair Logs, In-App Notifications, and Administrative Analytics Dashboards.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register User (Student)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Marcus Aurelius\",\n    \"email\": \"marcus.student@university.edu\",\n    \"password\": \"Student@123\",\n    \"phone\": \"+1-555-0922\",\n    \"role\": \"STUDENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login - Admin (Auto-sets jwtToken)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.accessToken) {",
+									"    pm.collectionVariables.set(\"jwtToken\", jsonData.data.accessToken);",
+									"    console.log(\"Saved admin JWT token: \" + jsonData.data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@fixtrace.com\",\n    \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login - Technician (Auto-sets jwtToken)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.accessToken) {",
+									"    pm.collectionVariables.set(\"jwtToken\", jsonData.data.accessToken);",
+									"    console.log(\"Saved technician JWT token: \" + jsonData.data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"tech.alex@fixtrace.com\",\n    \"password\": \"Tech@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login - Student (Auto-sets jwtToken)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.accessToken) {",
+									"    pm.collectionVariables.set(\"jwtToken\", jsonData.data.accessToken);",
+									"    console.log(\"Saved student JWT token: \" + jsonData.data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"student.kevin@university.edu\",\n    \"password\": \"Student@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User Profile (/me)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Users",
+			"item": [
+				{
+					"name": "List Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "List Active Technicians",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/technicians",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "technicians"]
+						}
+					}
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"System Admin Senior\",\n    \"phone\": \"+1-555-9999\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					}
+				},
+				{
+					"name": "Deactivate User (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/7",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "7"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Labs",
+			"item": [
+				{
+					"name": "Create Lab (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"labCode\": \"LAB-NET-402\",\n    \"name\": \"Advanced Networking & Telecom Lab\",\n    \"building\": \"Shannon Hall\",\n    \"floor\": \"4th Floor\",\n    \"roomNumber\": \"Room 402\",\n    \"description\": \"Equipped for Cisco router labs, SDN testbeds, and optic fiber termination\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/labs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs"]
+						}
+					}
+				},
+				{
+					"name": "Get All Labs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/labs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs"]
+						}
+					}
+				},
+				{
+					"name": "Get Lab By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/labs/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update Lab (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Computer Science Turing Lab\",\n    \"description\": \"Updated facility equipment description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/labs/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Lab Equipment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/labs/1/equipment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs", "1", "equipment"]
+						}
+					}
+				},
+				{
+					"name": "Delete Lab (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/labs/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "labs", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Equipment",
+			"item": [
+				{
+					"name": "Register Equipment (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"assetCode\": \"EQ-CS-099\",\n    \"name\": \"Apple Mac Studio M2 Ultra\",\n    \"category\": \"COMPUTER\",\n    \"brand\": \"Apple\",\n    \"model\": \"Mac Studio\",\n    \"serialNumber\": \"SN-APL-MAC-9981\",\n    \"purchaseDate\": \"2025-09-15\",\n    \"warrantyExpiryDate\": \"2028-09-15\",\n    \"status\": \"WORKING\",\n    \"labId\": 1,\n    \"description\": \"128GB Unified Memory, 2TB SSD for AI compilation\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment"]
+						}
+					}
+				},
+				{
+					"name": "List Equipment (Paged)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Search & Filter Equipment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment?search=dell&category=COMPUTER&status=WORKING",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment"],
+							"query": [
+								{ "key": "search", "value": "dell" },
+								{ "key": "category", "value": "COMPUTER" },
+								{ "key": "status", "value": "WORKING" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Equipment By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update Equipment (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dell Precision 3660 Workstation (Upgraded)\",\n    \"status\": \"WORKING\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Equipment Issues",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/2/issues",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "2", "issues"]
+						}
+					}
+				},
+				{
+					"name": "Get Equipment Repair History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/2/repair-history",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "2", "repair-history"]
+						}
+					}
+				},
+				{
+					"name": "Get Aggregated Maintenance History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/2/maintenance-history",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "2", "maintenance-history"]
+						}
+					}
+				},
+				{
+					"name": "Retire Equipment (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "equipment", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Issues",
+			"item": [
+				{
+					"name": "Report New Issue",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"equipmentId\": 1,\n    \"title\": \"GPU fan rattling loudly and thermal throttling\",\n    \"description\": \"System crashes under machine learning training loads; temperature spikes above 95C immediately.\",\n    \"priority\": \"HIGH\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues"]
+						}
+					}
+				},
+				{
+					"name": "List Issues (Paged & Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/issues?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Issue By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1"]
+						}
+					}
+				},
+				{
+					"name": "Assign Technician (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"technicianId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/assign",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "assign"]
+						}
+					}
+				},
+				{
+					"name": "Update Issue Priority (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"priority\": \"CRITICAL\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/priority",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "priority"]
+						}
+					}
+				},
+				{
+					"name": "Update Issue Status (Technician / Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_PROGRESS\",\n    \"comment\": \"Bench testing power delivery circuit\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Mark Issue Resolved (Technician / Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RESOLVED\",\n    \"comment\": \"Repairs complete, burn-in test passed successfully.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Close Issue (Reporter / Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/close",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "close"]
+						}
+					}
+				},
+				{
+					"name": "Reopen Issue (Reporter / Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/reopen",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "reopen"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Repair Records",
+			"item": [
+				{
+					"name": "Create Repair Record (Technician / Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"diagnosis\": \"Blown secondary electrolytic filter capacitor on 12V rail\",\n    \"actionTaken\": \"Desoldered defective cap and replaced with high-temp Japanese 105C capacitor\",\n    \"partsUsed\": \"Nichicon 2200uF 25V capacitor\",\n    \"repairNotes\": \"Full load stress test completed for 45 minutes; 12V rail rock solid at 12.04V\",\n    \"repairStartedAt\": \"2026-10-20T08:00:00\",\n    \"repairCompletedAt\": \"2026-10-20T09:30:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/repair-records",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "repair-records"]
+						}
+					}
+				},
+				{
+					"name": "Get Repair Records For Issue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/issues/1/repair-records",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "issues", "1", "repair-records"]
+						}
+					}
+				},
+				{
+					"name": "Get Repair Record By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/repair-records/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "repair-records", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update Repair Record (Author Technician / Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"diagnosis\": \"Confirmed capacitor degradation and dry joint\",\n    \"actionTaken\": \"Re-flowed solder joint and replaced capacitor\",\n    \"repairNotes\": \"Passed electrical safety inspection.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/repair-records/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "repair-records", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Notifications",
+			"item": [
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications"]
+						}
+					}
+				},
+				{
+					"name": "Get Unread Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/unread",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "unread"]
+						}
+					}
+				},
+				{
+					"name": "Mark Single Notification As Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/1/read",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "1", "read"]
+						}
+					}
+				},
+				{
+					"name": "Mark All Notifications As Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/read-all",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "read-all"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Dashboard & Analytics",
+			"item": [
+				{
+					"name": "Dashboard Summary KPIs (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard/summary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard", "summary"]
+						}
+					}
+				},
+				{
+					"name": "Issues By Status (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard/issues-by-status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard", "issues-by-status"]
+						}
+					}
+				},
+				{
+					"name": "Issues By Priority (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard/issues-by-priority",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard", "issues-by-priority"]
+						}
+					}
+				},
+				{
+					"name": "Issues By Lab (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard/issues-by-lab",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard", "issues-by-lab"]
+						}
+					}
+				},
+				{
+					"name": "Frequently Failing Equipment (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard/failure-prone-equipment?limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard", "failure-prone-equipment"],
+							"query": [
+								{ "key": "limit", "value": "10" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Actuator & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "App Info",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/info",
+							"host": ["{{baseUrl}}"],
+							"path": ["actuator", "info"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
